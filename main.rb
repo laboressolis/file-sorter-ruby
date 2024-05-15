@@ -50,19 +50,40 @@ $file_ext = {
 $files = []
 $sorted_files = []
 $unsorted_files = []
+$logger = Logger.new('actions.log')
 
 def folder_setup(folder)
   folder_path = File.join($current_dir, folder)
-  puts folder_path
+  if Dir.exist?(folder_path)
+    $logger.info "#{folder} folder already exists"
+  else
+    begin
+      Dir.mkdir(folder_path)
+      $logger.info "#{folder} folder created"
+    rescue StandardError => error
+      $logger.error "Failed to create folder #{folder}: #{error}"
+    end
+  end
 end
 
+def get_files
+  current_dir_files = Dir.entries($current_dir).reject { |f| f == "." || f == ".." }
+  puts current_dir_files
+end
+
+
 def main
-  logger = Logger.new('actions.log')
+  $logger.info 'Script Started'
+  $logger.info "Current Working Directory: #{$current_dir}"
 
-  logger.info 'Script Started'
-  logger.info "Current Working Directory: #{$current_dir}"
-
+  # folder setup
   $folders.each {|folder| folder_setup(folder)}
+
+  # fetching files
+  $logger.info "Fetching files"
+  get_files
+
+
 end
 if __FILE__ == $PROGRAM_NAME
   main
